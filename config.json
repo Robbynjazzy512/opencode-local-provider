@@ -1,0 +1,11 @@
+{
+  "provider": {
+    "local": {
+      "name": "Local Provider",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      }
+    }
+  }
+}
