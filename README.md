@@ -113,10 +113,11 @@ bun run test:providers ollama
 
 Notes:
 
-- This suite uses real CPU-backed provider containers for Ollama, LM Studio (`llmster`), llama.cpp, and vLLM.
-- The first run is slow because each service downloads its own model assets, and LM Studio bootstraps its headless runtime inside the container at startup.
-- You can override model selections with environment variables such as `OLLAMA_MODEL`, `LMSTUDIO_MODEL`, `LLAMACPP_MODEL_REPO`, `LLAMACPP_MODEL_FILE`, and `VLLM_MODEL`.
-- The default llama.cpp test model is `LiquidAI/LFM2-350M-GGUF:LFM2-350M-Q8_0.gguf`.
+- The suite starts real provider containers for `ollama`, `lmstudio`, `llamacpp`, and `vllm` from `tests/docker/compose.providers.yml`.
+- The runner talks to each service over the Docker Compose network using each container's internal IP. It does not require publishing ports to the host.
+- The first run can be slow because the containers may need to download model assets and LM Studio bootstraps its headless runtime at startup.
+- CI runs the same suite per provider via `.github/workflows/provider-tests.yml`.
+- If you change provider models or startup behavior, update `tests/docker/compose.providers.yml` and the related health checks instead of duplicating those details here.
 
 Install it locally in OpenCode with a file path plugin entry, for example:
 
