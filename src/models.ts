@@ -12,18 +12,27 @@ function limits(input: number) {
   }
 }
 
-function item(providerID: string, url: string, model: LocalModel, prev?: Model): Model {
+function id(target: string, model: string) {
+  return `${target}/${model}`
+}
+
+function name(target: string, model: string) {
+  return `${model} (${target})`
+}
+
+function item(providerID: string, target: string, url: string, model: LocalModel, prev?: Model): Model {
   const limit = limits(model.context)
+  const next = id(target, model.id)
 
   return {
-    id: model.id,
+    id: next,
     providerID,
     api: {
-      id: prev?.api.id ?? model.id,
+      id: model.id,
       url: baseURL(url),
       npm: prev?.api.npm ?? OPENAI_COMPATIBLE_NPM,
     },
-    name: prev?.name ?? model.id,
+    name: prev?.name ?? name(target, model.id),
     family: prev?.family ?? "",
     capabilities: {
       temperature: prev?.capabilities.temperature ?? true,
@@ -56,13 +65,21 @@ function item(providerID: string, url: string, model: LocalModel, prev?: Model):
     },
     limit,
     status: prev?.status ?? "active",
-    options: prev?.options ?? {},
+    options: {
+      ...prev?.options,
+      target,
+    },
     headers: prev?.headers ?? {},
     release_date: prev?.release_date ?? "",
     variants: prev?.variants ?? {},
   }
 }
 
-export function build(providerID: string, url: string, list: LocalModel[], prev: Record<string, Model>) {
-  return Object.fromEntries(list.map((model) => [model.id, item(providerID, url, model, prev[model.id])]))
+export function build(providerID: string, target: string, url: string, list: LocalModel[], prev: Record<string, Model>) {
+  return Object.fromEntries(
+    list.map((model) => {
+      const key = id(target, model.id)
+      return [key, item(providerID, target, url, model, prev[key])]
+    }),
+  )
 }

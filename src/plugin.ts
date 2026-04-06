@@ -7,10 +7,10 @@ import {
   LOCAL_PLUGIN_SERVICE,
   OPENAI_COMPATIBLE_NPM,
 } from "./constants"
-import { authKey, providerURL, save } from "./config"
+import { current, key, save, targets } from "./config"
 import { build } from "./models"
 import { probe } from "./probe"
-import { baseURL, trimURL } from "./url"
+import { trimURL } from "./url"
 
 function valid(value: string) {
   try {
@@ -21,16 +21,28 @@ function valid(value: string) {
   }
 }
 
-async function models(provider: Provider, ctx: ProviderHookContext) {
-  const url = providerURL(provider)
-  if (!url) return {}
+function validID(value: string) {
+  return /^[a-z0-9][a-z0-9-_]*$/.test(value)
+}
 
-  try {
-    const found = await probe(url, authKey(ctx.auth))
-    return build(provider.id, url, found.models, provider.models)
-  } catch {
-    return {}
-  }
+async function models(provider: Provider, ctx: ProviderHookContext) {
+  const list = targets(provider)
+  if (!Object.keys(list).length) return {}
+
+  const auth = key(provider, ctx.auth)
+
+  const all = await Promise.all(
+    Object.entries(list).map(async ([id, item]) => {
+      try {
+        const found = await probe(item.url, auth)
+        return build(provider.id, id, item.url, found.models, provider.models)
+      } catch {
+        return {}
+      }
+    }),
+  )
+
+  return Object.assign({}, ...all)
 }
 
 export const LocalProviderPlugin: Plugin = async (ctx) => {
@@ -46,17 +58,17 @@ export const LocalProviderPlugin: Plugin = async (ctx) => {
     config: async (cfg) => {
       cfg.provider ??= {}
       const provider = cfg.provider[LOCAL_PROVIDER_ID] ?? {}
+      const list = targets(provider as Provider)
+      const options = {
+        ...provider.options,
+        targets: list,
+      }
+      delete options.baseURL
       cfg.provider[LOCAL_PROVIDER_ID] = {
         ...provider,
         name: provider.name ?? LOCAL_PROVIDER_NAME,
         npm: provider.npm ?? OPENAI_COMPATIBLE_NPM,
-        options: {
-          ...provider.options,
-          baseURL:
-            typeof provider.options?.baseURL === "string" && provider.options.baseURL
-              ? baseURL(provider.options.baseURL)
-              : provider.options?.baseURL,
-        },
+        options,
       }
     },
     auth: {
@@ -66,6 +78,16 @@ export const LocalProviderPlugin: Plugin = async (ctx) => {
           type: "api",
           label: "Connect to Local Provider",
           prompts: [
+            {
+              type: "text",
+              key: "target",
+              message: "Enter a target ID",
+              placeholder: "ollama",
+              validate(value) {
+                if (!value) return "Target ID is required"
+                if (!validID(value)) return "Use lowercase letters, numbers, - or _"
+              },
+            },
             {
               type: "text",
               key: "baseURL",
@@ -79,26 +101,32 @@ export const LocalProviderPlugin: Plugin = async (ctx) => {
             {
               type: "text",
               key: "apiKey",
-              message: "API key (leave empty if not needed)",
+              message: "Shared API key (leave empty to keep current, enter none to clear)",
               placeholder: "Bearer token or empty",
             },
           ],
           async authorize(input = {}) {
+            const id = input.target?.trim() ?? ""
             const raw = trimURL(input.baseURL ?? "")
-            if (!raw || !valid(raw)) return { type: "failed" as const }
+            if (!id || !validID(id) || !raw || !valid(raw)) return { type: "failed" as const }
 
-            const key = input.apiKey?.trim() ?? ""
+            const cur = await current(ctx.serverUrl, ctx.client)
+            const prev = cur.key
+            const next = input.apiKey?.trim()
+            const key = next === "none" ? "" : next || prev
+            const saveKey = next === "none" ? "" : next || undefined
 
             try {
               await probe(raw, key)
-              await save(ctx.client, raw)
-              return {
-                type: "success" as const,
-                key,
-                provider: LOCAL_PROVIDER_ID,
-              }
+              await save(ctx.serverUrl, ctx.client, id, raw, saveKey)
             } catch {
               return { type: "failed" as const }
+            }
+
+            return {
+              type: "success" as const,
+              key,
+              provider: LOCAL_PROVIDER_ID,
             }
           },
         },

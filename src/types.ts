@@ -8,3 +8,7 @@ export type LocalModel = {
   toolcall: boolean
   vision: boolean
 }
+
+export type LocalTarget = {
+  url: string
+}
