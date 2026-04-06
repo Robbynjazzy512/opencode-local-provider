@@ -1,9 +1,13 @@
 {
   "name": "opencode-local-provider",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "license": "MIT",
   "description": "OpenCode plugin that adds a 'local' provider with auto-detection for Ollama, LMStudio, llama.cpp, and vLLM",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/goniz/opencode-local-provider.git"
+  },
   "module": "./dist/index.js",
   "main": "./dist/index.js",
   "exports": {
