@@ -1,0 +1,73 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+      OLLAMA_KEEP_ALIVE: -1
+      OLLAMA_MODEL: hf.co/LiquidAI/LFM2-350M-GGUF:Q8_0
+    volumes:
+      - ./ollama-entrypoint.sh:/entrypoint.sh:ro
+    entrypoint: ["bash", "/entrypoint.sh"]
+    healthcheck:
+      test: ["CMD-SHELL", "ollama ps | grep -q \"LFM2-350M-GGUF\""]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 30s
+
+  lmstudio:
+    image: library/ubuntu:24.04
+    environment:
+      LMSTUDIO_MODEL: liquid/lfm2-350m
+      LMSTUDIO_MODEL_ID: lfm2-350m
+      LMSTUDIO_CONTEXT: 2048
+    volumes:
+      - ./lmstudio-entrypoint.sh:/entrypoint.sh:ro
+    entrypoint: ["bash", "/entrypoint.sh"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:1234/api/v0/models | grep -q \"lfm2-350m\""]
+      interval: 10s
+      timeout: 10s
+      retries: 60
+      start_period: 120s
+
+  llamacpp:
+    image: ghcr.io/ggml-org/llama.cpp:server
+    environment:
+      LLAMACPP_MODEL_REPO: ${LLAMACPP_MODEL_REPO:-LiquidAI/LFM2-350M-GGUF}
+      LLAMACPP_CONTEXT: ${LLAMACPP_CONTEXT:-2048}
+    volumes:
+      - ./llamacpp-entrypoint.sh:/entrypoint.sh:ro
+    entrypoint: ["bash", "/entrypoint.sh"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/v1/models | grep -q 'LFM2-350M'"]
+      interval: 10s
+      timeout: 10s
+      retries: 60
+      start_period: 30s
+
+  vllm:
+    image: vllm/vllm-openai-cpu:latest-x86_64
+    # volumes:
+    #   - ./vllm-entrypoint.sh:/entrypoint.sh:ro
+    # entrypoint: ["bash", "/entrypoint.sh"]
+    command:
+      - --host=0.0.0.0
+      - --port=8000
+      - --dtype=auto
+      - --max-model-len=256
+      - --no-enable-prefix-caching
+      - --trust-remote-code
+      - Qwen/Qwen2.5-0.5B-Instruct
+    environment:
+      VLLM_CPU_KVCACHE_SPACE: 1
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import json, urllib.request; data=json.load(urllib.request.urlopen('http://127.0.0.1:8000/v1/models')); assert any(item.get('id') == 'Qwen/Qwen2.5-0.5B-Instruct' for item in data.get('data', []))\"",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 60
+      start_period: 60s
