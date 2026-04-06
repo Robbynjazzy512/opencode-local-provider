@@ -99,6 +99,25 @@ Build the plugin:
 bun run build
 ```
 
+Run the real provider integration suite in Docker Compose:
+
+```bash
+bun run test:providers
+```
+
+Run a single provider suite:
+
+```bash
+bun run test:providers ollama
+```
+
+Notes:
+
+- This suite uses real CPU-backed provider containers for Ollama, LM Studio (`llmster`), llama.cpp, and vLLM.
+- The first run is slow because each service downloads its own model assets, and LM Studio bootstraps its headless runtime inside the container at startup.
+- You can override model selections with environment variables such as `OLLAMA_MODEL`, `LMSTUDIO_MODEL`, `LLAMACPP_MODEL_REPO`, `LLAMACPP_MODEL_FILE`, and `VLLM_MODEL`.
+- The default llama.cpp test model is `LiquidAI/LFM2-350M-GGUF:LFM2-350M-Q8_0.gguf`.
+
 Install it locally in OpenCode with a file path plugin entry, for example:
 
 ```bash
