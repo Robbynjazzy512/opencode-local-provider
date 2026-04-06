@@ -1,14 +1,12 @@
-# opencode-local-provider
+# *opencode-local-provider* OpenCode Plugin
 
 OpenCode plugin that adds a single `local` provider with runtime model detection for local OpenAI-compatible servers.
 
-It supports OpenAI-compatible local backends, including:
+It currently supports the following local backends:
 - Ollama
 - LM Studio
-- llama.cpp
+- llama.cpp server
 - vLLM
-
-Any other backend that exposes a compatible OpenAI-style API should work as well.
 
 Instead of creating one provider per server, this plugin keeps one `local` provider and lets you register multiple named targets. Each target is probed at runtime, and its currently loaded models are exposed automatically.
 
@@ -24,18 +22,12 @@ Instead of creating one provider per server, this plugin keeps one `local` provi
 ## Install
 
 ```bash
-opencode plugin opencode-local-provider
+opencode plugin --global opencode-local-provider
 ```
 
-To install globally instead of per-project:
+OpenCode will install the package and update the config for you.
 
-```bash
-opencode plugin opencode-local-provider --global
-```
-
-OpenCode will install the package and update config for you.
-
-## Setup
+## Provider Setup
 
 Run:
 
@@ -50,7 +42,7 @@ Choose `local`, then enter:
 
 The target ID can be any valid provider ID string. It is used as the prefix for discovered model IDs.
 
-You can repeat this flow to add more targets.
+You can repeat this flow to add more targets. (target IDs should be unique)
 
 ## Resulting Config
 
@@ -83,7 +75,7 @@ If you set a shared API key, it is stored through OpenCode auth for the `local` 
 
 ## How Models Appear
 
-Models are discovered dynamically from each configured target.
+Models are discovered dynamically from each configured target. (Only **loaded** models)
 
 To avoid collisions, model IDs are prefixed with the target ID:
 
@@ -110,7 +102,7 @@ bun run build
 Install it locally in OpenCode with a file path plugin entry, for example:
 
 ```bash
-opencode plugin file:///absolute/path/to/opencode-local-provider/
+opencode plugin $PWD
 ```
 
 ## License
