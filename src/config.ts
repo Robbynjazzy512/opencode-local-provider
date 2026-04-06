@@ -3,7 +3,7 @@ import { createOpencodeClient } from "@opencode-ai/sdk/v2/client"
 import type { Provider } from "@opencode-ai/sdk/v2"
 
 import { LEGACY_TARGET_ID, LOCAL_PROVIDER_ID } from "./constants"
-import type { LocalTarget } from "./types"
+import { KINDS, type LocalTarget } from "./types"
 import { baseURL } from "./url"
 
 function sdk(url: URL, input: PluginInput["client"]) {
@@ -29,7 +29,13 @@ function target(item: unknown) {
   if (typeof item === "string" && item) return { url: baseURL(item) }
   if (item && typeof item === "object") {
     const url = "url" in item ? item.url : undefined
-    if (typeof url === "string" && url) return { url: baseURL(url) }
+    const kind = "kind" in item ? item.kind : undefined
+    if (typeof url === "string" && url) {
+      return {
+        url: baseURL(url),
+        ...(typeof kind === "string" && KINDS.includes(kind as (typeof KINDS)[number]) ? { kind } : {}),
+      }
+    }
   }
 }
 
@@ -75,13 +81,21 @@ export async function current(url: URL, input: PluginInput["client"]) {
   }
 }
 
-export async function save(server: URL, input: PluginInput["client"], id: string, url: string, key?: string) {
+export async function save(
+  server: URL,
+  input: PluginInput["client"],
+  id: string,
+  url: string,
+  kind?: LocalTarget["kind"],
+  key?: string,
+) {
   const cur = await current(server, input)
   const options: Record<string, unknown> = {
     targets: {
       ...cur.targets,
       [id]: {
         url: baseURL(url),
+        ...(kind ? { kind } : {}),
       },
     },
   }

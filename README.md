@@ -2,11 +2,13 @@
 
 OpenCode plugin that adds a single `local` provider with runtime model detection for local OpenAI-compatible servers.
 
-It is designed for setups like:
+It supports OpenAI-compatible local backends, including:
 - Ollama
 - LM Studio
 - llama.cpp
 - vLLM
+
+Any other backend that exposes a compatible OpenAI-style API should work as well.
 
 Instead of creating one provider per server, this plugin keeps one `local` provider and lets you register multiple named targets. Each target is probed at runtime, and its currently loaded models are exposed automatically.
 
@@ -46,6 +48,8 @@ Choose `local`, then enter:
 - the local server URL
 - an optional shared API key
 
+The target ID can be any valid provider ID string. It is used as the prefix for discovered model IDs.
+
 You can repeat this flow to add more targets.
 
 ## Resulting Config
@@ -61,10 +65,12 @@ The plugin stores targets in OpenCode global config under the `local` provider:
       "options": {
         "targets": {
           "ollama": {
-            "url": "http://localhost:11434/v1"
+            "url": "http://localhost:11434/v1",
+            "kind": "ollama"
           },
           "studio": {
-            "url": "http://127.0.0.1:1234/v1"
+            "url": "http://127.0.0.1:1234/v1",
+            "kind": "lmstudio"
           }
         }
       }

@@ -34,7 +34,7 @@ async function models(provider: Provider, ctx: ProviderHookContext) {
   const all = await Promise.all(
     Object.entries(list).map(async ([id, item]) => {
       try {
-        const found = await probe(item.url, auth)
+        const found = await probe(item.url, auth, item.kind)
         return build(provider.id, id, item.url, found.models, provider.models)
       } catch {
         return {}
@@ -117,8 +117,8 @@ export const LocalProviderPlugin: Plugin = async (ctx) => {
             const saveKey = next === "none" ? "" : next || undefined
 
             try {
-              await probe(raw, key)
-              await save(ctx.serverUrl, ctx.client, id, raw, saveKey)
+              const found = await probe(raw, key)
+              await save(ctx.serverUrl, ctx.client, id, raw, found.kind, saveKey)
             } catch {
               return { type: "failed" as const }
             }
