@@ -18,6 +18,7 @@ jobs:
           - provider: lmstudio
           - provider: llamacpp
           - provider: vllm
+          - provider: exo
     steps:
       - uses: actions/checkout@v4
 
