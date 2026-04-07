@@ -1,5 +1,6 @@
 import type { Plugin, ProviderHookContext } from "@opencode-ai/plugin"
 import type { Provider } from "@opencode-ai/sdk/v2"
+import pkg from "../package.json" with { type: "json" }
 
 import {
   LOCAL_PROVIDER_ID,
@@ -14,6 +15,7 @@ import {
   saveProviderTarget,
 } from "./config"
 import { build } from "./models"
+import { supportedProviderKinds } from "./providers"
 import { detect, probe } from "./probe"
 import { trimURL } from "./url"
 
@@ -46,7 +48,7 @@ export const LocalProviderPlugin: Plugin = async (ctx) => {
     body: {
       service: LOCAL_PLUGIN_SERVICE,
       level: "info",
-      message: "Local Provider plugin loaded",
+      message: `Local Provider plugin loaded v${pkg.version}. Supported backends: ${supportedProviderKinds.join(", ")}`,
     },
   })
 
