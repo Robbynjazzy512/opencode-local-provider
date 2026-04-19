@@ -58,7 +58,7 @@ Choose `local`, then choose `Set Shared API Key` and enter the shared API key.
 If you need non-default hosts or ports, use the CLI auth flow to add an explicit target:
 
 ```bash
-opencode auth login --provider local --method "Add Custom Target (CLI only)"
+opencode auth login --provider local --method "Add Custom Target"
 ```
 
 This will prompt for:

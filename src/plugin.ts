@@ -79,7 +79,7 @@ export const LocalProviderPlugin: Plugin = async (ctx) => {
         },
         {
           type: "api",
-          label: "Add Custom Target (CLI only)",
+          label: "Add Custom Target",
           prompts: [
             {
               type: "text",
