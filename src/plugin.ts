@@ -10,7 +10,6 @@ import {
 } from "./constants"
 import {
   getConfiguredTargets,
-  getProviderApiKey,
   getProviderTargets,
   saveProviderTarget,
 } from "./config"
@@ -27,12 +26,10 @@ async function probeModels(provider: Provider, ctx: ProviderHookContext) {
   const list = getProviderTargets(provider)
   if (!Object.keys(list).length) return {}
 
-  const auth = getProviderApiKey(provider, ctx.auth)
-
   const all = await Promise.all(
     Object.entries(list).map(async ([id, item]) => {
       try {
-        const found = await probe(item.url, auth, item.kind)
+        const found = await probe(item.url, item.kind)
         return build(provider.id, id, item.url, found.models, provider.models)
       } catch {
         return {}
@@ -75,11 +72,7 @@ export const LocalProviderPlugin: Plugin = async (ctx) => {
       methods: [
         {
           type: "api",
-          label: "Set Shared API Key",
-        },
-        {
-          type: "api",
-          label: "Add Custom Target (CLI only)",
+          label: "Add Custom Target",
           prompts: [
             {
               type: "text",
@@ -100,37 +93,34 @@ export const LocalProviderPlugin: Plugin = async (ctx) => {
                 if (!trimURL(value ?? "")) return "URL is required"
               },
             },
-            {
-              type: "text",
-              key: "apiKey",
-              message: "Re-enter the shared API key for this provider (enter none if unused)",
-              placeholder: "none",
-              validate(value) {
-                if (!value?.trim()) return "API key is required; enter none if unused"
-              },
-            },
           ],
           async authorize(input = {}) {
             const id = input.target?.trim() ?? ""
             const raw = trimURL(input.baseURL ?? "")
-            const next = input.apiKey?.trim() ?? ""
-            const key = next === "none" ? "" : next
-            if (!id || !validID(id) || !raw || !next) return { type: "failed" as const }
-
-            const kind = await detect(raw, key).catch(() => undefined)
-            if (!kind) return { type: "failed" as const }
-
             try {
-              await probe(raw, key, kind)
-              await saveProviderTarget(ctx.serverUrl, ctx.client, id, raw, kind)
-            } catch {
-              return { type: "failed" as const }
-            }
+              if (!id || !validID(id) || !raw) {
+                throw new Error("Invalid target ID or URL")
+              }
 
-            return {
-              type: "success" as const,
-              provider: LOCAL_PROVIDER_ID,
-              key,
+              const result = await probe(raw)
+              const kind = result.kind
+              await saveProviderTarget(ctx.serverUrl, ctx.client, id, raw, kind)
+
+              return {
+                type: "success" as const,
+                provider: LOCAL_PROVIDER_ID,
+                key: "",
+              }
+            } catch (e) {
+              const errorMessage = e instanceof Error ? e.message : String(e)
+              await ctx.client.app.log({
+                body: {
+                  service: LOCAL_PLUGIN_SERVICE,
+                  level: "error",
+                  message: `Authorization failed: ${errorMessage}`,
+                },
+              })
+              return { type: "failed" as const }
             }
           },
         },
