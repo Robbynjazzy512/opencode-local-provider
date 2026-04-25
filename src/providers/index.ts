@@ -23,7 +23,7 @@ export const supportedProviderDefaultURLs: Record<LocalProviderKind, string> = {
   llamacpp: "http://127.0.0.1:8080",
   vllm: "http://127.0.0.1:8000",
   exo: "http://127.0.0.1:52415",
-  llamaswap: "http://127.0.0.1:9292",
+  llamaswap: "http://127.0.0.1:8080",
 }
 
 export const supportedProviderKinds = Object.keys(supportedProviders) as LocalProviderKind[]

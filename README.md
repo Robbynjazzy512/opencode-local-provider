@@ -43,7 +43,7 @@ Default targets are enabled automatically for these backends and ports:
 - llama.cpp: `http://127.0.0.1:8080`
 - vLLM: `http://127.0.0.1:8000`
 - Exo: `http://127.0.0.1:52415`
-- llama-swap: `http://127.0.0.1:9292`
+- llama-swap: `http://127.0.0.1:8080`
 
 If your local providers do not need auth, you can start using the `local` provider immediately.
 

@@ -9,7 +9,7 @@ models:
       n_ctx: ${LLAMASWAP_CONTEXT}
 
 hooks:
-  onStartup:
+  on_startup:
     preload:
       - ${LLAMASWAP_MODEL}
 EOF
