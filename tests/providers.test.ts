@@ -149,4 +149,16 @@ describe("provider integration", () => {
       }
     }
   }, 120_000)
+
+  test("probe with explicit kind rejects mismatched server", async () => {
+    for (const item of activeSuites) {
+      for (const otherKind of supportedProviderKinds) {
+        if (otherKind === item.kind) continue
+        const otherDefaultURL = supportedProviderDefaultURLs[otherKind]
+        if (String(new URL(otherDefaultURL).port) !== String(item.port)) continue
+
+        await expect(probe(item.url(), undefined, otherKind)).rejects.toThrow()
+      }
+    }
+  }, 120_000)
 })
