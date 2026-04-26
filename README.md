@@ -9,6 +9,7 @@ It currently supports the following local backends:
 - vLLM
 - Exo
 - llama-swap
+- oMLX
 
 Instead of creating one provider per server, this plugin keeps one `local` provider and lets you register multiple named targets. Each target is probed at runtime, and its currently loaded models are exposed automatically.
 
@@ -44,8 +45,11 @@ Default targets are enabled automatically for these backends and ports:
 - vLLM: `http://127.0.0.1:8000`
 - Exo: `http://127.0.0.1:52415`
 - llama-swap: `http://127.0.0.1:8080`
+- oMLX: `http://127.0.0.1:8000`
 
 If your local providers do not need auth, you can start using the `local` provider immediately.
+
+**Note: oMLX requires API authentication to be disabled in the web app settings for the plugin to detect and probe models.**
 
 **Note: API key authentication is currently unsupported.**
 
@@ -156,7 +160,7 @@ PROVIDER_SUITE=ollama bun run test:providers
 
 Notes:
 
-- The suite starts provider containers for `ollama`, `lmstudio`, `llamacpp`, `vllm`, `exo`, and `llamaswap` from `tests/docker/compose.providers.yml`.
+- The suite starts provider containers for `ollama`, `lmstudio`, `llamacpp`, `vllm`, `exo`, `llamaswap`, and `omlx` from `tests/docker/compose.providers.yml`.
 - The Bun test runner talks to each service over the Docker Compose network using each container's internal IP. It does not require publishing ports to the host.
 - The first run can be slow because the containers may need to download model assets, LM Studio bootstraps its headless runtime at startup, and Exo warms models to a real ready state before the suite proceeds.
 - CI runs the same suite per provider via `.github/workflows/provider-tests.yml`.
