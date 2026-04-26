@@ -157,7 +157,7 @@ describe("provider integration", () => {
         const otherDefaultURL = supportedProviderDefaultURLs[otherKind]
         if (String(new URL(otherDefaultURL).port) !== String(item.port)) continue
 
-        await expect(probe(item.url(), undefined, otherKind)).rejects.toThrow()
+        await expect(probe(item.url(), otherKind)).rejects.toThrow()
       }
     }
   }, 120_000)
