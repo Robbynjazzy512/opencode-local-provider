@@ -1,7 +1,9 @@
 import { beforeAll, afterAll, describe, expect, test } from "bun:test"
 
 import { detect, probe } from "../src/probe"
-import { supportedProviderKinds } from "../src/providers"
+import { supportedProviderKinds, supportedProviders, supportedProviderDefaultURLs } from "../src/providers"
+import type { LocalProviderKind } from "../src/types"
+import { rootURL } from "../src/url"
 import { ComposeEnvironment } from "./docker/compose"
 
 const selectedKind = process.env.PROVIDER_SUITE
@@ -135,4 +137,16 @@ describe("provider integration", () => {
       }
     }, 120_000)
   }
+
+  test("providers with shared ports are not cross-detected", async () => {
+    for (const item of activeSuites) {
+      for (const [otherKind, otherProvider] of Object.entries(supportedProviders)) {
+        if (otherKind === item.kind) continue
+        const otherDefaultURL = supportedProviderDefaultURLs[otherKind as LocalProviderKind]
+        if (String(new URL(otherDefaultURL).port) !== String(item.port)) continue
+
+        expect(await otherProvider.detect(rootURL(item.url()))).toBe(false)
+      }
+    }
+  }, 120_000)
 })
